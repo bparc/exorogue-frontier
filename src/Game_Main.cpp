@@ -3,7 +3,7 @@ static void InitializeGame(game_state_t *State, const content_t *Content)
 	memset(State, 0, sizeof(*State));
 	State->Content = Content;
 
-	size_t MemoryBudget = MB(16);
+	int32_t MemoryBudget = MB(16);
 	SetupMemory(&State->Memory, (uint8_t *)malloc(MemoryBudget), MemoryBudget);
 
 	//

@@ -83,6 +83,7 @@ static void DrawBitmap(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, vec
 
 static void DrawShilouette();
 
+static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, rect_t Bounds, vec4_t Color = {1, 1, 1, 1}, float_t Scale = 1.0f);
 static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, vec4_t Color = {1, 1, 1, 1}, float_t Scale = 1.0f);
 
 // Scaled
@@ -94,3 +95,6 @@ static void PushLineThickness(render_output_t *Out, float_t Thickness);
 static void DrawLine(render_output_t *Out, vec2_t From, vec2_t To, vec4_t Color);
 static void DrawRectOutline(render_output_t *Out, vec2_t Offset, vec2_t Size, vec4_t Color);
 static void DrawCircleOutline(render_output_t *Out, vec2_t Offset, float_t Radius, vec4_t Color);
+
+// Util
+static float_t getTextWidth(bmfont_t *Info, const char *Text, float_t Scale);

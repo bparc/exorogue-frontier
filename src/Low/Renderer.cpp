@@ -295,33 +295,99 @@ static void DrawBitmapScaled(render_output_t *Out, vec2_t Offset, bitmap_t Bitma
 	}
 }
 
+static void RenderChar(render_output_t *Out, vec2_t *Offset, bitmap_t Bitmap, const bmfont_char_t *Ch, vec4_t Color, float_t Scale)
+{
+	vec2_t TexCoordMin = V2(Ch->X, Ch->Y);
+	vec2_t TexCoordMax = TexCoordMin + V2(Ch->Width, Ch->Height);
+
+	vec2_t QuadSize = V2(Ch->Width, Ch->Height) * Scale;
+	vec2_t QuadOffset = *Offset;
+
+	QuadOffset.x += Ch->XOffset * Scale;
+	QuadOffset.y += Ch->YOffset * Scale;
+
+	DrawBitmapScaled(Out, QuadOffset, Bitmap, QuadSize, TexCoordMin, TexCoordMax, Color);
+	Offset->x += Ch->XAdvance * Scale;
+}
+
+static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, const bmfont_t *Info, vec4_t Color,
+	const char *Text, rect_t Bounds, float_t Scale = 1.0f)
+{
+	const char *At = Text;
+	Color = Color * Color.w;
+	Offset.x = Bounds.Offset.x;
+
+	vec2_t Pen = Offset;
+	float StartX = Bounds.Offset.x;
+	float Cursor = 0.0f;
+	float MaxWidth = Bounds.Size.x;
+	float LineHeight = Info->Common.LineHeight * Scale;
+
+	while (*At)
+	{
+		uint8_t Codepoint = (uint8_t)*At++;
+
+		if (Codepoint == '\n') {
+			Pen.x = StartX;
+			Pen.y += LineHeight;
+			Cursor = 0;
+			continue;
+		}
+
+		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
+		float_t AdvanceX = Ch->XAdvance * Scale;
+
+		if (Cursor + AdvanceX > MaxWidth) {
+			Pen.x = StartX;
+			Pen.y += LineHeight;
+			Cursor = 0;
+		}
+
+		RenderChar(Out, &Pen, Bitmap, Ch, Color, Scale);
+
+		Cursor = Pen.x - StartX;
+	}
+}
+
 static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, const bmfont_t *Info, vec4_t Color, const char *Text, float_t Scale = 1.0f)
 {
 	const char *At = Text;
-	//Offset.x = floorf(Offset.x);
-	//Offset.y = floorf(Offset.y);
-	
 	Color = Color * Color.w;
 
 	while (*At)
 	{
+		uint8_t Codepoint = (uint8_t)*At++;
+		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
+		RenderChar(Out, &Offset, Bitmap, Ch, Color, Scale);
+	}
+}
+
+static float_t getTextWidth(bmfont_t *Info, const char *Text, float_t Scale)
+{
+	const char *At = Text;
+	float_t CursorX = 0.0f;
+
+	while (*At) {
 		uint8_t Codepoint = *At++;
 		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
 
-		vec2_t TexCoordMin, TexCoordMax;
-		vec2_t TextureScale;
-		vec2_t QuadSize = V2(Ch->Width, Ch->Height) * Scale;
+		float_t AdvanceX = Ch->XAdvance * Scale;
+		CursorX += AdvanceX;
+	}
 
-		TexCoordMin = V2(Ch->X, Ch->Y);
-		TexCoordMax = TexCoordMin + V2(Ch->Width, Ch->Height);
+	return CursorX;
+}
 
-		vec2_t QuadOffset = Offset;
-		QuadOffset.x += (float)Ch->XOffset * Scale;
-		QuadOffset.y += (float)Ch->YOffset * Scale;
+static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, rect_t Bounds, vec4_t Color, float_t Scale)
+{
+	font_t Font = Out->Font ? Out->Font : Out->Assets->FontDefault;
+	if (Font)
+	{
+		//Offset.x = floorf(Offset.x);
+		//Offset.y = floorf(Offset.y);
 
-		DrawBitmapScaled(Out, QuadOffset, Bitmap, QuadSize, TexCoordMin, TexCoordMax, Color);
-
-		Offset.x = (Offset.x + (float_t)(Ch->XAdvance) * Scale);
+		_RenderString(Out, Offset - (V2(1, 1) * Scale), Font->Bitmap, &Font->Info, V4(ColorBlack, Color.w), Text, Bounds, Scale);
+		_RenderString(Out, Offset, Font->Bitmap, &Font->Info, Color, Text, Bounds, Scale);
 	}
 }
 

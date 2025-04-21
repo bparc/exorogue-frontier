@@ -73,6 +73,7 @@ static bool Interact(interface_t *State, rect_t Bb, hash_t ID);
 
 static hash_t HashName(const interface_t *State, const char *Name);
 
+static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, float_t Scale);
 static bool Button(interface_t *State, const char *Name);
 
 // INTERNAL:

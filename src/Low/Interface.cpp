@@ -240,6 +240,17 @@ static bool Interact(interface_t *State, rect_t Bb, hash_t ID)
 	return Result;
 }
 
+static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, float_t Scale)
+{
+	vec2_t FinalPos = {
+		Pos.x + State->Wnd->ClientBounds.x,
+		Pos.y + State->Wnd->ClientBounds.y
+	};
+
+	const render_output_t *Out = &State->Out;
+	DrawString(&State->Out, FinalPos, Text, State->Wnd->ClientBounds, Color, Scale);
+}
+
 static bool Button(interface_t *State, const char *Name)
 {
 	hash_t ID = HashName(State, Name);

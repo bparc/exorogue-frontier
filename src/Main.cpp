@@ -90,6 +90,12 @@ extern int main(void)
 
 		RunFrame(&GameState, &Input, Device, DebugCamera);
 
+		BeginWindow(&UserInterface, 0, {}, {400.0f, 400.0f}, "Window 1");
+		Button(&UserInterface, "Button 1");
+		Text(&UserInterface, "Test test test test test test test test test ttttttttttttttttttt test", Point(50,50), V4(5), 1);
+
+		EndWindow(&UserInterface);
+
 		EndUserInterface(&UserInterface);
 
 		Present(Client);
