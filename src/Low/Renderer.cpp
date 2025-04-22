@@ -1,6 +1,3 @@
-
-//
-
 static transform_t Transform(vec2_t Offset, vec2_t Size)
 {
 	transform_t Result = {};
@@ -357,12 +354,21 @@ static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, 
 
 	while (*At)
 	{
-		uint8_t Codepoint = (uint8_t)*At++;
+		uint8_t Codepoint = (uint8_t)*At;
 
 		if (Codepoint == '\n') {
 			Pen.x = StartX;
 			Pen.y += LineHeight;
 			Cursor = 0;
+			At++;
+			continue;
+		}
+
+		if (Codepoint == ' ') {
+			const bmfont_char_t *Ch = &Info->Chars[Codepoint];
+			Pen.x += Ch->XAdvance * Scale;
+			Cursor = Pen.x - StartX;
+			At++;
 			continue;
 		}
 
@@ -375,13 +381,7 @@ static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, 
             Pen.x = StartX;
             Pen.y += LineHeight;
             Cursor = 0;
-        } // todo
-
-		if (*At == ' ') {
-			uint8_t cp = (uint8_t)*At++;
-			const auto *Ch = &Info->Chars[cp];
-			float adv = Ch->XAdvance * Scale;
-		}
+        }
 
 		for (const char *p = WordStart; p < WordEnd; ++p) {
 			Codepoint = (uint8_t)*p;
@@ -397,9 +397,8 @@ static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, 
 			Cursor = 0;
 		}
 
-		RenderChar(Out, &Pen, Bitmap, Ch, Color, Scale);
-
 		Cursor = Pen.x - StartX;
+		At = WordEnd;
 	}
 }
 
