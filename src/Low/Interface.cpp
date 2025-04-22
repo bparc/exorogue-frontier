@@ -84,19 +84,27 @@ static void RenderGUI(interface_t *State, graphics_device_t *Device)
 	}
 }
 
+// Sets up the rendering state so that all draw commands drawn to interface_t::Out
+// are rendered to the specified window.
+
 static inline void CreateRenderTarget(interface_t *State, window_t *Window)
 {
+	interface_draw_command_t *Cmd;
+	render_command_t *NewCommand;
+
+	Assert(!State->Wnd);
+
 	// Allocate a new draw command for the specified window.
 
-	interface_draw_command_t *Cmd = State->WindowCommands.Push();
+	Cmd = State->WindowCommands.Push();
 	memset(Cmd, 0, sizeof(*Cmd));
 
-	render_command_t *NewCommand = AppendCommand(&State->CommandBuffer, Primitive_Quad, GetTextureCacheHandle(State->Out.Assets));
+	NewCommand = AppendCommand(&State->CommandBuffer, Primitive_Quad, GetTextureCacheHandle(State->Out.Assets));
 	Assert(NewCommand);
 
 	Cmd->First = ((uint16_t)State->CommandBuffer.CmdCount - 1);
 
-	// Append the command to the window's linked list.
+	// Append the new command to the window's linked list.
 
 	if (!Window->DrawListHead)
 	{
@@ -107,6 +115,16 @@ static inline void CreateRenderTarget(interface_t *State, window_t *Window)
 		Window->DrawListBack->Next = Cmd;
 		Window->DrawListBack = Cmd;
 	}
+
+	BindWindow(State, Window);
+}
+
+static void DeleteRenderTarget(interface_t *State)
+{
+	Assert(State->Wnd);
+	State->Wnd->DrawListBack->Last = ((uint16_t)State->CommandBuffer.CmdCount - 1);
+
+	BindWindow(State, 0);
 }
 
 static void UpdateWindowFrame(interface_t *State, window_t *Window)
@@ -165,8 +183,6 @@ static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, v
 
 	CreateRenderTarget(State, Window);
 
-	BindWindow(State, Window);
-
 	// Everything is set up - from now on we can draw widgets to the window.
 
 	if (Window->DrawListBack == Window->DrawListHead) // Make sure we're calling UpdateWindowFrame() only once per frame.
@@ -179,11 +195,7 @@ static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, v
 
 static void EndWindow(interface_t *State)
 {
-	window_t *Window = State->Wnd;
-	interface_draw_command_t *Cmd = Window->DrawListBack;
-	Cmd->Last = ((uint16_t)State->CommandBuffer.CmdCount - 1);
-
-	BindWindow(State, 0);
+	DeleteRenderTarget(State);
 }
 
 static bool IsHovered(const interface_t *State, rect_t Bb)
