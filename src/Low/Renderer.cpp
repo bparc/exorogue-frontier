@@ -310,8 +310,40 @@ static void RenderChar(render_output_t *Out, vec2_t *Offset, bitmap_t Bitmap, co
 	Offset->x += Ch->XAdvance * Scale;
 }
 
-static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, const bmfont_t *Info, vec4_t Color,
-	const char *Text, rect_t Bounds, float_t Scale = 1.0f)
+static float_t GetTextWidth(const bmfont_t *Info, const char *Text, float_t Scale)
+{
+	const char *At = Text;
+	float_t CursorX = 0.0f;
+
+	while (*At) {
+		uint8_t Codepoint = *At++;
+		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
+
+		float_t AdvanceX = Ch->XAdvance * Scale;
+		CursorX += AdvanceX;
+	}
+
+	return CursorX;
+}
+
+static float_t GetWordWidth(const bmfont_t *Info, const char *Text, float_t Scale)
+{
+	const char *At = Text;
+	float_t CursorX = 0.0f;
+
+	while (*At && *At != ' ' && *At != '\n') {
+		uint8_t Codepoint = *At++;
+		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
+
+		float_t AdvanceX = Ch->XAdvance * Scale;
+		CursorX += AdvanceX;
+	}
+
+	return CursorX;
+}
+
+static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, bmfont_t *Info, vec4_t Color,
+                          const char *Text, rect_t Bounds, float_t Scale = 1.0f)
 {
 	const char *At = Text;
 	Color = Color * Color.w;
@@ -332,6 +364,28 @@ static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, 
 			Pen.y += LineHeight;
 			Cursor = 0;
 			continue;
+		}
+
+		const char* WordStart = At;
+		const char* WordEnd = At;
+		while (*WordEnd && *WordEnd != ' ' && *WordEnd != '\n')
+			++WordEnd;
+		float_t CurrentWordWidth = GetWordWidth(Info, WordStart, Scale);
+		if (Cursor + CurrentWordWidth > MaxWidth) {
+            Pen.x = StartX;
+            Pen.y += LineHeight;
+            Cursor = 0;
+        } // todo
+
+		if (*At == ' ') {
+			uint8_t cp = (uint8_t)*At++;
+			const auto *Ch = &Info->Chars[cp];
+			float adv = Ch->XAdvance * Scale;
+		}
+
+		for (const char *p = WordStart; p < WordEnd; ++p) {
+			Codepoint = (uint8_t)*p;
+			RenderChar(Out, &Pen, Bitmap, &Info->Chars[Codepoint], Color, Scale);
 		}
 
 		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
@@ -360,22 +414,6 @@ static void _RenderString(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, 
 		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
 		RenderChar(Out, &Offset, Bitmap, Ch, Color, Scale);
 	}
-}
-
-static float_t getTextWidth(bmfont_t *Info, const char *Text, float_t Scale)
-{
-	const char *At = Text;
-	float_t CursorX = 0.0f;
-
-	while (*At) {
-		uint8_t Codepoint = *At++;
-		const bmfont_char_t *Ch = &Info->Chars[Codepoint];
-
-		float_t AdvanceX = Ch->XAdvance * Scale;
-		CursorX += AdvanceX;
-	}
-
-	return CursorX;
 }
 
 static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, rect_t Bounds, vec4_t Color, float_t Scale)

@@ -94,7 +94,7 @@ extern int main(void)
 		
 		BeginWindow(&UserInterface, 0, {}, {200.0f, 400.0f}, "Window 1");
 		Button(&UserInterface, "Button 1");
-		Text(&UserInterface, "Test test test test test test test test test ttttttttttttttttttt test", Point(50,50), V4(5), 1);
+		Text(&UserInterface, "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", Point(50,50), V4(5), 1);
 
 		EndWindow(&UserInterface);
 

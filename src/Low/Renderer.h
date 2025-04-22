@@ -97,4 +97,5 @@ static void DrawRectOutline(render_output_t *Out, vec2_t Offset, vec2_t Size, ve
 static void DrawCircleOutline(render_output_t *Out, vec2_t Offset, float_t Radius, vec4_t Color);
 
 // Util
-static float_t getTextWidth(bmfont_t *Info, const char *Text, float_t Scale);
+static float_t GetTextWidth(const bmfont_t *Info, const char *Text, float_t Scale);
+static float_t GetWordWidth(const bmfont_t *Info, const char *Text, float_t Scale);
