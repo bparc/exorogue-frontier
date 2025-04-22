@@ -347,4 +347,11 @@ struct array_t
 		_Type &Result = Values[Index];
 		return Result;
 	}
+
+	const _Type &operator[](int32_t Index) const
+	{
+		Assert(Index >= 0 && Index < Count);
+		const _Type &Result = Values[Index];
+		return Result;
+	}
 };

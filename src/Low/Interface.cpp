@@ -1,10 +1,35 @@
 
-static void InitializeUserInterface(interface_t *State)
+static void InitGUI(interface_t *State)
 {
 	memset(State, 0, sizeof(*State));
 }
 
-static void BeginUserInterface(interface_t *State, const input_t *Input, assets_t *Assets)
+static void UpdateRoot(interface_t *State, const input_t *Input)
+{
+	for (int32_t Index = 0; Index < State->SortBuffer.Count; Index++)
+	{
+		const window_t *Window = &State->Windows[State->SortBuffer[Index]];
+
+		if (Contains(Window->ClientBounds, State->MouseCursor))
+		{
+			State->RootWnd = Window->Name;
+
+			if (Input->MouseButtons[0].Down && (Index > 0)) // Focus
+			{
+				memmove(
+					&State->SortBuffer.Values[1],
+					&State->SortBuffer.Values[0],
+					(Index) * sizeof(*State->SortBuffer.Values));
+
+				State->SortBuffer[0] = (uint16_t)Window->Name;
+			}
+
+			break;	
+		}
+	}
+}
+
+static void BeginGUI(interface_t *State, const input_t *Input, assets_t *Assets)
 {
 	Assert(!State->RenderOutputInvalid);
 	State->RenderOutputInvalid = true;
@@ -18,39 +43,15 @@ static void BeginUserInterface(interface_t *State, const input_t *Input, assets_
 	State->Interact[0] = Input->MouseButtons[0].State;
 	State->Interact[1] = Input->MouseButtons[1].State;
 
-	//
-		
 	State->Hovered = 0;
-	State->Root = UINT32_MAX;
+	State->RootWnd = UINT32_MAX;
 
-	for (int32_t Index = 0; Index < State->SortBuffer.Count; Index++)
-	{
-		const window_t *Window = &State->Windows[State->SortBuffer[Index]];
-		if (Contains(Window->ClientBounds, State->MouseCursor))
-		{
-			State->Root = Window->Name;
-			if (Input->MouseButtons[0].Down &&
-				(Index > 0)) // Focus
-			{
-				#if 1
-				memmove(
-					&State->SortBuffer.Values[1],
-					&State->SortBuffer.Values[0],
-					(Index) * sizeof(*State->SortBuffer.Values));
-				#endif
+	UpdateRoot(State, Input);
 
-				State->SortBuffer[0] = (uint16_t)Window->Name;
-			}
-			break;	
-		}
-	}
-
-	//
-
-	State->InterceptInputs = (State->Root != UINT32_MAX) || (State->Active);
+	State->InterceptInputs = (State->RootWnd != UINT32_MAX) || (State->Active);
 }
 
-static void EndUserInterface(interface_t *State)
+static void EndGUI(interface_t *State)
 {
 	Assert(State->RenderOutputInvalid);
 	State->RenderOutputInvalid = false;
@@ -83,33 +84,19 @@ static void RenderGUI(interface_t *State, graphics_device_t *Device)
 	}
 }
 
-static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, vec2_t Size, const char *Title)
+static inline void CreateRenderTarget(interface_t *State, window_t *Window)
 {
-	Assert(WindowIndex < Len(State->Windows));
-	window_t *Window = &State->Windows[WindowIndex];
-
-	if (!Window->Inited)
-	{
-		Window->Inited = true;
-		Window->Title = Title;
-
-		Window->ClientBounds = Rect(Offset, Size);
-		Window->Name = WindowIndex;
-
-		uint16_t *Value = State->SortBuffer.Push();
-		*Value = (uint16_t)WindowIndex;
-	}
-
-	//
+	// Allocate a new draw command for the specified window.
 
 	interface_draw_command_t *Cmd = State->WindowCommands.Push();
 	memset(Cmd, 0, sizeof(*Cmd));
 
-	render_command_t *Reserved = AppendCommand(&State->CommandBuffer, Primitive_Quad, GetTextureCacheHandle(State->Out.Assets));
-	Assert(Reserved);
+	render_command_t *NewCommand = AppendCommand(&State->CommandBuffer, Primitive_Quad, GetTextureCacheHandle(State->Out.Assets));
+	Assert(NewCommand);
 
-	#if 1
 	Cmd->First = ((uint16_t)State->CommandBuffer.CmdCount - 1);
+
+	// Append the command to the window's linked list.
 
 	if (!Window->DrawListHead)
 	{
@@ -120,40 +107,72 @@ static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, v
 		Window->DrawListBack->Next = Cmd;
 		Window->DrawListBack = Cmd;
 	}
-	#endif
+}
 
-	// Bind
+static void UpdateWindowFrame(interface_t *State, window_t *Window)
+{
+	const char *Title = Window->Title;
+	rect_t ClientArena = Window->ClientBounds;
+	rect_t Bar = Rect(ClientArena.Offset, {ClientArena.Width, 20.0f});\
+	vec4_t BarColor = ColorRed;
+
+	// Dragging
+
+	hash_t BarID = HashName(State, Title);
+	Interact(State, Bar, BarID);
+	if (IsActive(State, BarID))
+	{
+		Window->ClientBounds.Offset = (State->MouseCursor + State->ClickOffset);
+		BarColor = ColorGreen;
+	}
+
+	//
+		
+	Window->LayoutCursor = V2(Bar.Offset.x, Bar.y + Bar.Height);
+
+	DrawRect(&State->Out, Stretch(ClientArena, 1.0f), ColorBlack); // Outline
+	DrawRect(&State->Out, ClientArena, ColorWhite);
+
+	DrawRect(&State->Out, Bar, BarColor);
+	DrawString(&State->Out, Bar.Offset + V2(4.0f, 0.0f), Title);
+}
+
+static void CreateModalWindow(interface_t *State, hash_t WindowIndex, rect_t ClientArena, const char *Title)
+{
+	window_t *Window = &State->Windows[WindowIndex];
+
+	Assert(!Window->Inited);
+	Window->Inited = true;
+	Window->Title = Title;
+
+	Window->ClientBounds = ClientArena;
+	Window->Name = WindowIndex;
+
+	State->SortBuffer.Push((uint16_t)WindowIndex);
+}
+
+static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, vec2_t Size, const char *Title)
+{
+	window_t *Window;
+
+	Assert(WindowIndex < Len(State->Windows));
+	Window = &State->Windows[WindowIndex];
+
+	if (!Window->Inited)
+	{
+		CreateModalWindow(State, WindowIndex, Rect(Offset, Size), Title);	
+	}
+
+	CreateRenderTarget(State, Window);
 
 	BindWindow(State, Window);
 
-#if 1
-	if (Window->DrawListBack == Window->DrawListHead) // First BeginWindow() call of the current frame...
+	// Everything is set up - from now on we can draw widgets to the window.
+
+	if (Window->DrawListBack == Window->DrawListHead) // Make sure we're calling UpdateWindowFrame() only once per frame.
 	{
-		rect_t ClientArena = Window->ClientBounds;
-		rect_t Bar = Rect(ClientArena.Offset, {ClientArena.Width, 20.0f});\
-		vec4_t BarColor = ColorRed;
-
-		// Dragging
-
-		hash_t BarID = HashName(State, Title);
-		Interact(State, Bar, BarID);
-		if (IsActive(State, BarID))
-		{
-			Window->ClientBounds.Offset = (State->MouseCursor + State->ClickOffset);
-			BarColor = ColorGreen;
-		}
-
-		//
-		
-		Window->LayoutCursor = V2(Bar.Offset.x, Bar.y + Bar.Height);
-
-		DrawRect(&State->Out, Stretch(ClientArena, 1.0f), ColorBlack); // Outline
-		DrawRect(&State->Out, ClientArena, ColorWhite);
-
-		DrawRect(&State->Out, Bar, BarColor);
-		DrawString(&State->Out, Bar.Offset + V2(4.0f, 0.0f), Title);
+		UpdateWindowFrame(State, Window);
 	}
-#endif
 
 	return (true);
 }
@@ -169,7 +188,7 @@ static void EndWindow(interface_t *State)
 
 static bool IsHovered(const interface_t *State, rect_t Bb)
 {
-	bool Result = Contains(Bb, State->MouseCursor) && (State->Wnd->Name == State->Root);
+	bool Result = Contains(Bb, State->MouseCursor) && (State->Wnd->Name == State->RootWnd);
 	return Result;
 }
 

@@ -25,43 +25,50 @@ struct window_t
 
 struct interface_t
 {
+	// Windows.
+
 	#define COUNT 32
 	array_t<uint16_t,COUNT>SortBuffer;
 	window_t Windows[COUNT];
 	//uint16_t SortBuffer[COUNT];
 	#undef COUNT
 
-	//
+	window_t *Wnd; // Currently bound window.
+
+	// Inputs.
 
 	bool InterceptInputs;
 	vec2_t MouseCursor;
 	bool Interact[2];
 
-	//
-	vec2_t ClickOffset;
-	hash_t Hovered;
-	hash_t Active;
-	window_t *Wnd;
-	hash_t Root;
+	// Interaction state.
 
-	//
+	vec2_t ClickOffset; // The place where the cursor was at the moment of interaction.
+	hash_t Hovered;
+	hash_t Active; // The widget we're currently interacting with.
+	hash_t RootWnd;
+
+	// Rendering.
+
+	render_output_t Out; // All widgets are rendered into this output.
+
+	// Internal renderig state.
 
 	bool RenderOutputInvalid;
-	render_output_t Out;
-
 	command_buffer_t CommandBuffer;
 	vertex_t Vertices[MB(10)];
 	render_command_t Commands[1024];
-
 	array_t<interface_draw_command_t,256>WindowCommands;
 };
 
-static void InitializeUserInterface(interface_t *State);
+static void InitGUI(interface_t *State);
 
-static void BeginUserInterface(interface_t *State, const input_t *Input, assets_t *Assets);
-static void EndUserInterface(interface_t *State);
+static void BeginGUI(interface_t *State, const input_t *Input, assets_t *Assets);
+static void EndGUI(interface_t *State);
 
 static void RenderGUI(interface_t *State, graphics_device_t *Device);
+
+// Windows.
 
 static bool BeginWindow(interface_t *State, hash_t WindowName, vec2_t Offset, vec2_t Size, const char *Title);
 static void EndWindow(interface_t *State);
@@ -72,6 +79,8 @@ static bool IsActive(const interface_t *State, hash_t ID);
 static bool Interact(interface_t *State, rect_t Bb, hash_t ID);
 
 static hash_t HashName(const interface_t *State, const char *Name);
+
+// Widgets.
 
 static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, float_t Scale);
 static bool Button(interface_t *State, const char *Name);

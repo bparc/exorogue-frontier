@@ -62,7 +62,7 @@ extern int main(void)
 	LoadGameContent(Assets, &Content);
 	//
 
-	InitializeUserInterface(&UserInterface);
+	InitGUI(&UserInterface);
 	InitializeGame(&GameState, &Content);
 
 	while (1)
@@ -77,7 +77,7 @@ extern int main(void)
 
 		// Begin
 
-		BeginUserInterface(&UserInterface, &Input, Assets);
+		BeginGUI(&UserInterface, &Input, Assets);
 
 		
 		// ...
@@ -90,13 +90,25 @@ extern int main(void)
 
 		RunFrame(&GameState, &Input, Device, DebugCamera);
 
-		BeginWindow(&UserInterface, 0, {}, {400.0f, 400.0f}, "Window 1");
+		//
+		
+		BeginWindow(&UserInterface, 0, {}, {200.0f, 400.0f}, "Window 1");
 		Button(&UserInterface, "Button 1");
 		Text(&UserInterface, "Test test test test test test test test test ttttttttttttttttttt test", Point(50,50), V4(5), 1);
 
 		EndWindow(&UserInterface);
 
-		EndUserInterface(&UserInterface);
+		BeginWindow(&UserInterface, 1, {}, {200.0f, 200.0f}, "Window 2");
+
+		EndWindow(&UserInterface);
+
+		BeginWindow(&UserInterface, 2, {}, {200.0f, 200.0f}, "Window 3");
+
+		EndWindow(&UserInterface);
+
+		//
+
+		EndGUI(&UserInterface);
 
 		Present(Client);
 
