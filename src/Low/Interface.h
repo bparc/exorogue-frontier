@@ -10,6 +10,15 @@ struct interface_draw_command_t
 	interface_draw_command_t *Next;
 };
 
+struct window_settings_t
+{
+	const char *Title;
+	float_t ElementSpacing;
+	float_t PaddingX;
+	float_t PaddingY;
+	float_t MaxRowHeight;
+};
+
 struct window_t
 {
 	rect_t ClientBounds;
@@ -18,7 +27,7 @@ struct window_t
 	interface_draw_command_t *DrawListBack;
 	bool Inited;
 
-	const char *Title;
+	window_settings_t Settings;
 
 	vec2_t LayoutCursor;
 };
@@ -70,7 +79,7 @@ static void RenderGUI(interface_t *State, graphics_device_t *Device);
 
 // Windows.
 
-static bool BeginWindow(interface_t *State, hash_t WindowName, vec2_t Offset, vec2_t Size, const char *Title);
+static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, vec2_t Size, window_settings_t Settings);
 static void EndWindow(interface_t *State);
 
 static bool IsHovered(const interface_t *State, rect_t Bb);
@@ -82,8 +91,9 @@ static hash_t HashName(const interface_t *State, const char *Name);
 
 // Widgets.
 
-static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, float_t Scale);
-static bool Button(interface_t *State, const char *Name);
+static void Text(interface_t *State, char* Text, vec2_t Pos, vec4_t Color, float_t Scale);
+static bool Button(interface_t *State, const char *Name, vec2_t Pos);
+static vec2_t GetNextWidgetPos(interface_t *UI, vec2_t WidgetSize);
 
 // INTERNAL:
 

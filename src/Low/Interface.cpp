@@ -1,4 +1,3 @@
-
 static void InitGUI(interface_t *State)
 {
 	memset(State, 0, sizeof(*State));
@@ -129,7 +128,7 @@ static void DeleteRenderTarget(interface_t *State)
 
 static void UpdateWindowFrame(interface_t *State, window_t *Window)
 {
-	const char *Title = Window->Title;
+	const char *Title = Window->Settings.Title;
 	rect_t ClientArena = Window->ClientBounds;
 	rect_t Bar = Rect(ClientArena.Offset, {ClientArena.Width, 20.0f});\
 	vec4_t BarColor = ColorRed;
@@ -161,7 +160,7 @@ static void CreateModalWindow(interface_t *State, hash_t WindowIndex, rect_t Cli
 
 	Assert(!Window->Inited);
 	Window->Inited = true;
-	Window->Title = Title;
+	Window->Settings.Title = Title;
 
 	Window->ClientBounds = ClientArena;
 	Window->Name = WindowIndex;
@@ -169,7 +168,8 @@ static void CreateModalWindow(interface_t *State, hash_t WindowIndex, rect_t Cli
 	State->SortBuffer.Push((uint16_t)WindowIndex);
 }
 
-static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, vec2_t Size, const char *Title)
+
+static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, vec2_t Size, window_settings_t Settings)
 {
 	window_t *Window;
 
@@ -178,7 +178,7 @@ static bool BeginWindow(interface_t *State, hash_t WindowIndex, vec2_t Offset, v
 
 	if (!Window->Inited)
 	{
-		CreateModalWindow(State, WindowIndex, Rect(Offset, Size), Title);	
+		CreateModalWindow(State, WindowIndex, Rect(Offset, Size), Settings.Title);
 	}
 
 	CreateRenderTarget(State, Window);
@@ -271,7 +271,7 @@ static bool Interact(interface_t *State, rect_t Bb, hash_t ID)
 	return Result;
 }
 
-static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, float_t Scale)
+static void Text(interface_t *State, char* Text, vec2_t Pos, vec4_t Color, float_t Scale)
 {
 	vec2_t FinalPos = {
 		Pos.x + State->Wnd->ClientBounds.x,
@@ -282,10 +282,10 @@ static void Text(interface_t *State, char* Text, point_t Pos, vec4_t Color, floa
 	DrawString(&State->Out, FinalPos, Text, State->Wnd->ClientBounds, Color, Scale);
 }
 
-static bool Button(interface_t *State, const char *Name)
+static bool Button(interface_t *State, const char *Name, vec2_t Pos)
 {
 	hash_t ID = HashName(State, Name);
-	rect_t Bb = Rect(State->Wnd->LayoutCursor, V2(100.0f, 20.0f));
+	rect_t Bb = Rect(State->Wnd->LayoutCursor, V2(100.0f, 20.0f)); // todo: get rid of magic numbers
 
 	bool Result = Interact(State, Bb, ID);
 
@@ -306,7 +306,35 @@ static bool Button(interface_t *State, const char *Name)
 	DrawRect(&State->Out, Bb, Color);
 	DrawString(&State->Out, Bb.Offset + V2(5.0f, 0.0f), Name);
 
-	State->Wnd->LayoutCursor.y += 20.0f;
-
 	return Result;
+}
+
+// Utility
+static vec2_t GetNextWidgetPos(interface_t *UI, vec2_t WidgetSize)
+{
+	window_t* W = UI->Wnd;
+
+	float_t LeftMargin = W->ClientBounds.Offset.x + W->Settings.PaddingX;
+	float_t RightEdge =
+		W->ClientBounds.Offset.x + W->ClientBounds.Size.x - W->Settings.PaddingX;
+
+	printf("Lcx=%.1f, widgetW=%.1f, leftMargin=%.1f, rightEdge=%.1f\n",
+	W->LayoutCursor.x,
+	WidgetSize.x,
+	LeftMargin,
+	RightEdge);
+
+	if (W->LayoutCursor.x + WidgetSize.x >= RightEdge) {
+		W->LayoutCursor.x = LeftMargin;
+		W->LayoutCursor.y += W->Settings.MaxRowHeight + W->Settings.ElementSpacing;
+		W->Settings.MaxRowHeight = 0;
+	}
+
+	vec2_t CurrentPos = UI->Wnd->LayoutCursor;
+
+	W->Settings.MaxRowHeight = fmaxf(W->Settings.MaxRowHeight, WidgetSize.y);
+
+	W->LayoutCursor.x += WidgetSize.x + W->Settings.ElementSpacing;
+
+	return CurrentPos;
 }

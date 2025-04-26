@@ -91,18 +91,26 @@ extern int main(void)
 		RunFrame(&GameState, &Input, Device, DebugCamera);
 
 		//
-		
-		BeginWindow(&UserInterface, 0, {}, {200.0f, 400.0f}, "Window 1");
-		Button(&UserInterface, "Button 1");
-		Text(&UserInterface, "Lorem ipsum dolor sit amet, consectetur adipiscing elit.", Point(50,50), V4(5), 1);
 
-		EndWindow(&UserInterface);
+		window_settings_t WindowSettings = {};
+		WindowSettings.ElementSpacing = 100.0f;
+		WindowSettings.PaddingX = 200.0f;
+		WindowSettings.PaddingY = 290.0f;
+		WindowSettings.Title = "Window 1";
+		WindowSettings.MaxRowHeight = 0;
 
-		BeginWindow(&UserInterface, 1, {}, {200.0f, 200.0f}, "Window 2");
-
-		EndWindow(&UserInterface);
-
-		BeginWindow(&UserInterface, 2, {}, {200.0f, 200.0f}, "Window 3");
+		BeginWindow(&UserInterface, 0, {}, {400.0f, 400.0f}, WindowSettings);
+		Button(&UserInterface, "Button 1", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f))); // todo: remove magic numbers from button function, make button size configurable
+		Button(&UserInterface, "Button 2", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 3", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 4", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 5", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 6", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 7", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Button(&UserInterface, "Button 8", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
+		Text(&UserInterface, "Lorem ipsum", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
+		//Text(&UserInterface, "dolor sit amet", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
+		//Text(&UserInterface, "consectetur adipiscing elit.", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
 
 		EndWindow(&UserInterface);
 
