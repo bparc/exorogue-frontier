@@ -3,7 +3,7 @@ static void InitGUI(interface_t *State)
 	memset(State, 0, sizeof(*State));
 }
 
-static void UpdateRoot(interface_t *State, const input_t *Input)
+static void UpdateRootWindow(interface_t *State, const input_t *Input)
 {
 	for (int32_t Index = 0; Index < State->SortBuffer.Count; Index++)
 	{
@@ -33,7 +33,7 @@ static void BeginGUI(interface_t *State, const input_t *Input, assets_t *Assets)
 	Assert(!State->RenderOutputInvalid);
 	State->RenderOutputInvalid = true;
 
-	Setup(&State->CommandBuffer, State->Vertices, Len(State->Vertices), State->Commands, Len(State->Commands));
+	SetupCmdBuffer(&State->CommandBuffer, State->Vertices, Len(State->Vertices), State->Commands, Len(State->Commands));
 	State->Out = RenderTo(&State->CommandBuffer, Assets);
 
 	State->WindowCommands.Clear();
@@ -45,7 +45,7 @@ static void BeginGUI(interface_t *State, const input_t *Input, assets_t *Assets)
 	State->Hovered = 0;
 	State->RootWnd = UINT32_MAX;
 
-	UpdateRoot(State, Input);
+	UpdateRootWindow(State, Input);
 
 	State->InterceptInputs = (State->RootWnd != UINT32_MAX) || (State->Active);
 }
@@ -113,7 +113,7 @@ static inline void CreateRenderTarget(interface_t *State, window_t *Window)
 	{
 		Window->DrawListBack->Next = Cmd;
 		Window->DrawListBack = Cmd;
-	}
+	} 	
 
 	BindWindow(State, Window);
 }
@@ -129,8 +129,7 @@ static void DeleteRenderTarget(interface_t *State)
 static void UpdateWindowFrame(interface_t *State, window_t *Window)
 {
 	const char *Title = Window->Settings.Title;
-	rect_t ClientArena = Window->ClientBounds;
-	rect_t Bar = Rect(ClientArena.Offset, {ClientArena.Width, 20.0f});\
+	rect_t Bar = Rect(Window->ClientBounds.Offset, {Window->ClientBounds.Width, 20.0f});\
 	vec4_t BarColor = ColorRed;
 
 	// Dragging
@@ -140,15 +139,16 @@ static void UpdateWindowFrame(interface_t *State, window_t *Window)
 	if (IsActive(State, BarID))
 	{
 		Window->ClientBounds.Offset = (State->MouseCursor + State->ClickOffset);
+		Bar.Offset = Window->ClientBounds.Offset;
 		BarColor = ColorGreen;
 	}
 
 	//
-		
-	Window->LayoutCursor = V2(Bar.Offset.x, Bar.y + Bar.Height);
+	Window->LayoutCursor = V2(Window->ClientBounds.x, Bar.y + Bar.Height);
+	//Window->LayoutCursor = Window->ClientBounds.Offset + V2(0.0f, Bar.Height);
 
-	DrawRect(&State->Out, Stretch(ClientArena, 1.0f), ColorBlack); // Outline
-	DrawRect(&State->Out, ClientArena, ColorWhite);
+	DrawRect(&State->Out, Stretch(Window->ClientBounds, 1.0f), ColorBlack); // Outline
+	DrawRect(&State->Out, Window->ClientBounds, ColorWhite);
 
 	DrawRect(&State->Out, Bar, BarColor);
 	DrawString(&State->Out, Bar.Offset + V2(4.0f, 0.0f), Title);
@@ -316,13 +316,13 @@ static vec2_t GetNextWidgetPos(interface_t *UI, vec2_t WidgetSize)
 
 	float_t LeftMargin = W->ClientBounds.Offset.x + W->Settings.PaddingX;
 	float_t RightEdge =
-		W->ClientBounds.Offset.x + W->ClientBounds.Size.x - W->Settings.PaddingX;
+		W->ClientBounds.Offset.x + W->ClientBounds.Size.x - W->Settings.PaddingX;  
 
-	printf("Lcx=%.1f, widgetW=%.1f, leftMargin=%.1f, rightEdge=%.1f\n",
-	W->LayoutCursor.x,
-	WidgetSize.x,
-	LeftMargin,
-	RightEdge);
+	//printf("Lcx=%.1f, widgetW=%.1f, leftMargin=%.1f, rightEdge=%.1f\n",
+	//W->LayoutCursor.x,
+	//WidgetSize.x,
+	//LeftMargin,
+	//RightEdge);
 
 	if (W->LayoutCursor.x + WidgetSize.x >= RightEdge) {
 		W->LayoutCursor.x = LeftMargin;
