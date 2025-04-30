@@ -34,7 +34,7 @@ static vec2_t MapTo(transform_t Transform, vec2_t Point)
 
 // ...
 
-static void Setup(command_buffer_t *Cmds, vertex_t *Vertices, int32_t VertexCount, render_command_t *Commands, int32_t CommandCount)
+static void SetupCmdBuffer(command_buffer_t *Cmds, vertex_t *Vertices, int32_t VertexCount, render_command_t *Commands, int32_t CommandCount)
 {
 	memset(Cmds, 0, sizeof(*Cmds));
 	Cmds->MaxCmdCount = CommandCount;
@@ -43,7 +43,7 @@ static void Setup(command_buffer_t *Cmds, vertex_t *Vertices, int32_t VertexCoun
 	Cmds->Vertices = Vertices;
 }
 
-static void Setup(command_buffer_t *Cmds, memory_t *Memory, int32_t VertexBufferSizeInBytes, int32_t CmdCount)
+static void SetupCmdBuffer(command_buffer_t *Cmds, memory_t *Memory, int32_t VertexBufferSizeInBytes, int32_t CmdCount)
 {
 	memset(Cmds, 0, sizeof(*Cmds));
 
@@ -205,6 +205,11 @@ static void RenderTexturedQuad(render_output_t *Out, vec2_t Offset, vec2_t Size,
 static void RenderTexturedQuad(render_output_t *Out, vec2_t Offset, vec2_t Size, vec4_t Color, texture_resource_t Texture, rect_t TexCoords)
 {
 	RenderTexturedQuad(Out, Offset, Size, Color, Texture, TexCoords.Offset, TexCoords.Offset + TexCoords.Size);
+}
+
+static void ClearCommands(render_output_t *Out)
+{
+	Clear(Out->Out);
 }
 
 static void DrawRect(render_output_t *Out, vec2_t Offset, vec2_t Size, vec4_t Color)

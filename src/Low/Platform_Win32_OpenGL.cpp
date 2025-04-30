@@ -313,7 +313,7 @@ static void DispatchBegin(graphics_device_t *Device, vec4_t View, struct transfo
 
 	glUseProgram(0);
 
-	if (Flags & Dispatch_Filter_NearestNeighbour)
+	if (Flags & SHADER_NEAREST_NEIGHBOUR_ANTIALIASING)
 	{
 		glUseProgram(Device->BitmapFilter);	
 	}
@@ -378,12 +378,13 @@ static texture_resource_t CreateTextureResource(graphics_device_t *Device, int16
 	#endif
 
 	glGenerateMipmap(GL_TEXTURE_2D);
+	#if 1
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	//glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
+	#else
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	#endif
 	// DebugLog("#%i, %ix%i", Result.Handle, X, Y);
 
 	return Result;

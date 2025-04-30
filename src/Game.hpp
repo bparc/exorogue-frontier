@@ -1,3 +1,19 @@
+//
+struct camera_t
+{
+	vec2_t Center;
+	vec2_t Size;
+	float_t Zoom;
+};
+
+static camera_t CreateCamera(vec2_t Size);
+static float_t GetCameraScaleFactor(const camera_t *Camera);
+static transform_t GetCameraTransform(const camera_t *Camera);
+static bounds_t GetCameraBounds(const camera_t *Camera);
+
+static void TrackObject(camera_t *Camera, vec2_t Position, float_t Speed);
+
+//
 
 struct action_t
 {
@@ -32,7 +48,10 @@ struct game_state_t
 	array_t <active_unit_t, 32>Units;
 	//
 
-	command_buffer_t CommandBuffers[1];
+	// Rendering.
+	game_renderer_t Renderer;
+
+	//command_buffer_t CommandBuffers[1];
 };
 
 static object_t Spawn(game_state_t *State, point_t At, object_type_t Type);

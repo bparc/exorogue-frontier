@@ -49,8 +49,8 @@ struct command_buffer_t
 	vertex_t *Vertices;
 };
 
-static void Setup(command_buffer_t *Cmds, vertex_t *Vertices, int32_t VertexCount, render_command_t *Commands, int32_t CommandCount);
-static void Setup(command_buffer_t *Cmds, memory_t *Memory, int32_t VertexBufferSizeInBytes, int32_t CmdCount = 0);
+static void SetupCmdBuffer(command_buffer_t *Cmds, vertex_t *Vertices, int32_t VertexCount, render_command_t *Commands, int32_t CommandCount);
+static void SetupCmdBuffer(command_buffer_t *Cmds, memory_t *Memory, int32_t VertexBufferSizeInBytes, int32_t CmdCount = 0);
 static void Clear(command_buffer_t *Cmds, int32_t Count);
 static void Clear(command_buffer_t *Cmds);
 
@@ -74,6 +74,7 @@ struct render_output_t
 static render_output_t RenderTo(command_buffer_t *Out, const assets_t *Assets, font_t Font = NULL);
 
 // Primitive_Quad
+static void ClearCommands(render_output_t *Out);
 static void DrawRect(render_output_t *Out, vec2_t Offset, vec2_t Size, vec4_t Color);
 static void DrawRect(render_output_t *Out, rect_t Rectangle, vec4_t Color);
 static void DrawPoint(render_output_t *Out, vec2_t Offset, vec4_t Color);

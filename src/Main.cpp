@@ -14,8 +14,7 @@
 
 #include "Automapping.cpp"
 
-#include "Camera.hpp"
-#include "Camera.cpp"
+#include "Render.hpp"
 #include "Render.cpp"
 
 #include "Navigation.hpp"
@@ -44,6 +43,29 @@ static interface_t UserInterface;
 
 static editor_t EditorState;
 #endif
+
+static void TestGUI(interface_t *UI)
+{
+	window_settings_t WindowSettings = {};
+	WindowSettings.ElementSpacing = 100.0f;
+	WindowSettings.PaddingX = 200.0f;
+	WindowSettings.PaddingY = 290.0f;
+	WindowSettings.Title = "Window 1";
+	WindowSettings.MaxRowHeight = 0;
+	BeginWindow(UI, 0, {}, {400.0f, 400.0f}, WindowSettings);
+	Button(UI, "Button 1", GetNextWidgetPos(UI, V2(100.0f, 20.0f))); // todo: remove magic numbers from button function, make button size configurable
+	Button(UI, "Button 2", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 3", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 4", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 5", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 6", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 7", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Button(UI, "Button 8", GetNextWidgetPos(UI, V2(100.0f, 20.0f)));
+	Text(UI, "Lorem ipsum", GetNextWidgetPos(UI, V2(100.0f, 20.0f)), V4(5), 1);
+	//Text(UI, "dolor sit amet", GetNextWidgetPos(UI, V2(100.0f, 20.0f)), V4(5), 1);
+	//Text(UI, "consectetur adipiscing elit.", GetNextWidgetPos(UI, V2(100.0f, 20.0f)), V4(5), 1);
+	EndWindow(UI);
+}
 
 extern int main(void)
 {
@@ -91,29 +113,9 @@ extern int main(void)
 		RunFrame(&GameState, &Input, Device, DebugCamera);
 
 		//
-
-		window_settings_t WindowSettings = {};
-		WindowSettings.ElementSpacing = 100.0f;
-		WindowSettings.PaddingX = 200.0f;
-		WindowSettings.PaddingY = 290.0f;
-		WindowSettings.Title = "Window 1";
-		WindowSettings.MaxRowHeight = 0;
-
-		BeginWindow(&UserInterface, 0, {}, {400.0f, 400.0f}, WindowSettings);
-		Button(&UserInterface, "Button 1", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f))); // todo: remove magic numbers from button function, make button size configurable
-		Button(&UserInterface, "Button 2", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 3", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 4", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 5", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 6", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 7", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Button(&UserInterface, "Button 8", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)));
-		Text(&UserInterface, "Lorem ipsum", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
-		//Text(&UserInterface, "dolor sit amet", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
-		//Text(&UserInterface, "consectetur adipiscing elit.", GetNextWidgetPos(&UserInterface, V2(100.0f, 20.0f)), V4(5), 1);
-
-		EndWindow(&UserInterface);
-
+#if 1
+		TestGUI(&UserInterface);
+#endif
 		//
 
 		EndGUI(&UserInterface);

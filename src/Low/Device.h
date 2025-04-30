@@ -4,7 +4,7 @@ typedef struct graphics_device_t graphics_device_t;
 
 enum
 {
-	Dispatch_Filter_NearestNeighbour = 1 << 0,
+	SHADER_NEAREST_NEIGHBOUR_ANTIALIASING = 1 << 0, // Uses a custom anti-aliased nearest neighbour filtering that's suitable for pixel art style graphics.
 };
 
 static void Dispatch(graphics_device_t *Device, const struct command_buffer_t *Cmds, vec4_t View, struct transform_t Transform, int32_t Flags = 0);

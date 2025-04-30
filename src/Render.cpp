@@ -1,30 +1,62 @@
-static void RenderView(const map_t *Map, bounds_t ClipPlane, render_output_t *Out, const content_t *Content, float_t ElapsedTime)
+
+//
+
+static vec2_t ScrToIso(vec2_t Coords)
 {
-	DrawRect(Out, ClipPlane.Min, ClipPlane.Max - ClipPlane.Min, RGBA(13, 32, 48));
-	DrawString(Out, {16, 5}, "Hello, World!");
+	vec2_t Result = {0};
+	Result.x = Dot(Coords, V2(+0.50f,-0.50f));
+	Result.y = Dot(Coords, V2(+0.25f,+0.25f));
+	return Result;
+}
+
+static vec2_t IsoToScr(vec2_t Coords)
+{
+	vec2_t Result = {0};
+	Result.x = Dot(Coords, V2(+2.0f,+4.0f));
+	Result.y = Dot(Coords, V2(-2.0f,+4.0f));
+	Result = Result * 0.5f;
+	return Result;
+}
+
+//
+
+static void WriteCommands(game_renderer_t *Renderer, const renderer_data_t *Data)
+{
+	render_output_t *Out;
+	map_t *Map;
+
+	Out = &Renderer->Out;
+	Map = Data->Map;
+
+	// Sky
+
+	rect_t SkyBox = Rect(Data->ClipPlane.Min, Data->ClipPlane.Max - Data->ClipPlane.Min);
+	DrawRect(Out, SkyBox, RGBA(13, 32, 48));
+	
+	// Tiles
 
 	for (int32_t y = 0; y < Map->Y; y++)
 	{
-		for (int32_t x = 0; x < Map->X; x++)
+		for (int32_t x = 0; x < Map->Y; x++)
 		{
-			point_t Index = Point(x, y);
+			const map_tile_t *Tile = GetTile(Map, {x, y});
 
-			const map_tile_t *Tile = GetTile(Map, Index);
-			if (Tile)
+			if (Tile && IsTraversable(Tile))
 			{
-				int32_t ID = Tile->ID;
-				rect_t Bounds = GetTileBounds(Map, Index);
+				rect_t Bounds = GetTileBounds(Map, {x, y});
 
-				//
+				vec2_t UVMin = {1, 1};
+				vec2_t UVMax = UVMin + V2(32, 32);
 
-				uint8_t Padding = 2;
-				uint8_t GridSize = 8;
+				vec4_t Color = V4(1);
 
-				int32_t UVx = (ID - 1);
-				vec2_t UVMin = V2(((GridSize + (Padding * 2)) * UVx) + Padding, Padding);
-				vec2_t UVMax = UVMin + V2((float_t)GridSize);
+				if (Tile->Object != 0)
+					Color = ColorRed;
 
-				DrawBitmapScaled(Out, Bounds.Offset, Content->TileSetBitmap, Map->TileSize, UVMin, UVMax);
+				vec2_t BitmapOffset = ScrToIso(Bounds.Offset * 4.0f);
+				DrawBitmapScaled(Out, BitmapOffset, Data->Content->TileSetBitmap, {32, 32}, UVMin, UVMax, Color);
+
+				//DrawRect(Out, Offset, V2(1.0f, 1.0f), ColorRed);
 			}
 		}
 	}
@@ -34,39 +66,18 @@ static void RenderView(const map_t *Map, bounds_t ClipPlane, render_output_t *Ou
 	for (int32_t Index = 0; Index < Map->Objects.Count; Index++)
 	{
 		const map_object_t *Obj = &Map->Objects.Values[Index];
-		
-		rect_t TileBounds = GetTileBounds(Map, Obj->OccupiedTile);
-		vec2_t BitmapSize = GetSize(Content->Assets, Obj->Type->Animation[0]);
-		
-		vec2_t Center = RectCenter(TileBounds); //Obj->BitmapOffset;
-		vec2_t Alignment = {};
-
-		//if (Obj->RenderFlags & render_flags_CustomBitmapPosition)
-		{
-			Center = Obj->BitmapOffset;
-		}
-
-		switch (Obj->Type->Alignment)
-		{
-		case Alignment_Mid: Alignment = (BitmapSize * 0.5f); break;
-		case Alignment_Bot: Alignment = V2(BitmapSize.x * 0.5f, BitmapSize.y - 3); break;
-		}
-
-		float_t Time = fmodf(ElapsedTime, 1.0f);
-		int32_t Frame = (int32_t)(Time * Len(Obj->Type->Animation));
-		 //DrawRect(Out, TileBounds, ColorRed * 0.6f);
-		vec2_t BitmapOffset = (Center - Alignment);
-		BitmapOffset.y -= Obj->Height;
-			
-		DrawRect(Out, TileBounds, ColorYellow);
-		DrawRect(Out, Center - V2(2.0f, -1.0f), V2(5.0f, 3.0f), {0.1f, 0.1f, 0.1f, 0.5f});
-
-		DrawBitmap(Out, BitmapOffset, Obj->Type->Animation[Frame]);
-
-		//DrawString(&Out[1], Center, "1234", ColorWhite, 0.18f);
-		//DebugRect(BitmapOffset, BitmapSize, ColorRed);
-		//DebugPoint(Center, RGBA(255, 0 , 255));
-
-		//DebugPoint(Center, ColorRed);
 	}
+}
+
+static void RenderScene(game_renderer_t *Renderer, const renderer_data_t *Data, graphics_device_t *Dev)
+{
+	// Setup
+	SetupCmdBuffer(&Renderer->Buffers[0], Renderer->Vertices, Len(Renderer->Vertices), Renderer->Commands, Len(Renderer->Commands));
+
+ 	Renderer->Out = RenderTo(&Renderer->Buffers[0], Data->Content->Assets);
+
+ 	// Render
+	WriteCommands(Renderer, Data);
+
+	Dispatch(Dev, &Renderer->Buffers[0], Data->Viewport, Data->Transform, SHADER_NEAREST_NEIGHBOUR_ANTIALIASING);
 }

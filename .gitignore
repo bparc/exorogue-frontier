@@ -1,0 +1,14 @@
+*.sublime-workspace
+*.sublime-project
+*.exe
+*.ilk
+*.pdb
+*.obj
+*.dll
+*.sublime-workspace
+vs/
+.vs/
+lib/
+x64/
+x64/assets
+.vscode/

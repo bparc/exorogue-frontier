@@ -58,8 +58,8 @@ static void BeginDebugFrame(client_t *Client, const input_t *Input)
 	{
 		Debug.Inited = true;
 		SetupMemory(&Debug.Memory, Debug.DebugMemory, Len(Debug.DebugMemory));
-		Setup(&Debug.Cmds[0], &Debug.Memory, MB(4));
-		Setup(&Debug.Cmds[1], &Debug.Memory, MB(4));
+		SetupCmdBuffer(&Debug.Cmds[0], &Debug.Memory, MB(4));
+		SetupCmdBuffer(&Debug.Cmds[1], &Debug.Memory, MB(4));
 	}
 	
 	Debug.Device = GetGraphicsDevice(Client);

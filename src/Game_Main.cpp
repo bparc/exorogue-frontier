@@ -8,7 +8,7 @@ static void InitializeGame(game_state_t *State, const content_t *Content)
 
 	//
 
-	Setup(&State->CommandBuffers[0], &State->Memory, MB(4));
+	// Setup(&State->CommandBuffers[0], &State->Memory, MB(4));
 
 	//
 
@@ -94,14 +94,25 @@ static void RunFrame(game_state_t *State, const input_t *Input, graphics_device_
 
 	// ...
 
+#if 0
 	Clear(State->CommandBuffers, Len(State->CommandBuffers));
 
 	{
 	render_output_t Out = RenderTo(&State->CommandBuffers[0], State->Content->Assets);
 	RenderView(&State->Map, GetCameraBounds(Camera), &Out, State->Content, State->ElapsedTime);
 
-	Dispatch(Device, &State->CommandBuffers[0], V4(View), Transform, Dispatch_Filter_NearestNeighbour);
+	Dispatch(Device, &State->CommandBuffers[0], V4(View), Transform, SHADER_NEAREST_NEIGHBOUR_ANTIALIASING);
 	}
-	
+#endif
+
+	renderer_data_t Data = {};
+	Data.ClipPlane = GetCameraBounds(Camera);
+	Data.Transform = Transform;
+	Data.Viewport = V4(View);
+	Data.Map = &State->Map;
+	Data.Content = State->Content;
+
+	RenderScene(&State->Renderer, &Data, Device);
+
 	EndVisualDebugMode();
 }
