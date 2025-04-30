@@ -285,7 +285,7 @@ static void Text(interface_t *State, char* Text, vec2_t Pos, vec4_t Color, float
 static bool Button(interface_t *State, const char *Name, vec2_t Pos)
 {
 	hash_t ID = HashName(State, Name);
-	rect_t Bb = Rect(State->Wnd->LayoutCursor, V2(100.0f, 20.0f)); // todo: get rid of magic numbers
+	rect_t Bb = Rect(Pos, V2(100.0f, 20.0f)); // todo: get rid of magic numbers
 
 	bool Result = Interact(State, Bb, ID);
 
