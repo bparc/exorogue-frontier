@@ -1,3 +1,4 @@
+
 // ...
 
 struct transform_t
@@ -81,8 +82,6 @@ static void DrawPoint(render_output_t *Out, vec2_t Offset, vec4_t Color);
 
 static void DrawBitmap(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, vec4_t Color = {1, 1, 1, 1});
 static void DrawBitmap(render_output_t *Out, vec2_t Offset, bitmap_t Bitmap, vec2_t UVMin, vec2_t UVMax, vec4_t Color = {1, 1, 1, 1});
-
-static void DrawShilouette();
 
 static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, rect_t Bounds, vec4_t Color = {1, 1, 1, 1}, float_t Scale = 1.0f);
 static void DrawString(render_output_t *Out, vec2_t Offset, const char *Text, vec4_t Color = {1, 1, 1, 1}, float_t Scale = 1.0f);

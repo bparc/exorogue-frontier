@@ -1,15 +1,4 @@
 // map_object_t
-static void Animate(map_object_t *Object, vec2_t BitmapPosition, float_t Height)
-{
-	Object->BitmapOffset = BitmapPosition;
-	Object->Height = Height;
-}
-
-static vec2_t GetObjectCenter(map_object_t *Object)
-{
-	vec2_t Result = Object ? Object->BitmapOffset : V2(0.0f);
-	return Result;
-}
 
 // map_t
 

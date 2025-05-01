@@ -24,6 +24,8 @@ struct debug_state_t
 {
 	// Visual Debugging
 
+	bool BeginVisDebugMode;
+
 	vec4_t DebugView;
 	transform_t DebugCamera;
 	render_output_t DebugOutput; 

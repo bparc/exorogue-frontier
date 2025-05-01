@@ -148,7 +148,7 @@ static void UpdateWindowFrame(interface_t *State, window_t *Window)
 	//Window->LayoutCursor = Window->ClientBounds.Offset + V2(0.0f, Bar.Height);
 
 	DrawRect(&State->Out, Stretch(Window->ClientBounds, 1.0f), ColorBlack); // Outline
-	DrawRect(&State->Out, Window->ClientBounds, ColorWhite);
+	DrawRect(&State->Out, Window->ClientBounds, V4(0.84f));
 
 	DrawRect(&State->Out, Bar, BarColor);
 	DrawString(&State->Out, Bar.Offset + V2(4.0f, 0.0f), Title);

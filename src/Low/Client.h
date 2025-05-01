@@ -4,6 +4,7 @@
 #include "Device.h"
 #include "Assets.h"
 #include "Assets.cpp"
+#include "Renderer.h"
 
 typedef struct client_t client_t;
 
@@ -53,7 +54,6 @@ static void Present(client_t *Client);
 
 static void Display(client_t *Client); // SwapBuffers()
 
-#include "Renderer.h"
 #include "Renderer.cpp"
 
 #include "Debug.h"

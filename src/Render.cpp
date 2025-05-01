@@ -37,7 +37,7 @@ static void WriteCommands(game_renderer_t *Renderer, const renderer_data_t *Data
 
 	for (int32_t y = 0; y < Map->Y; y++)
 	{
-		for (int32_t x = 0; x < Map->Y; x++)
+		for (int32_t x = 0; x < Map->X; x++)
 		{
 			const map_tile_t *Tile = GetTile(Map, {x, y});
 
@@ -53,10 +53,9 @@ static void WriteCommands(game_renderer_t *Renderer, const renderer_data_t *Data
 				if (Tile->Object != 0)
 					Color = ColorRed;
 
-				vec2_t BitmapOffset = ScrToIso(Bounds.Offset * 4.0f);
-				DrawBitmapScaled(Out, BitmapOffset, Data->Content->TileSetBitmap, {32, 32}, UVMin, UVMax, Color);
-
-				//DrawRect(Out, Offset, V2(1.0f, 1.0f), ColorRed);
+				vec2_t BitmapOffset = ScrToIso(Bounds.Offset + V2(-4.0f, 4.0f));
+				DrawBitmapScaled(Out, BitmapOffset, Data->Content->TileSetBitmap, {8.0f, 8.0f}, UVMin, UVMax, Color);
+				//DrawRect(Out, BitmapOffset, V2(8.0f, 8.0f), V4(ColorRed, 0.5f));
 			}
 		}
 	}
@@ -66,6 +65,11 @@ static void WriteCommands(game_renderer_t *Renderer, const renderer_data_t *Data
 	for (int32_t Index = 0; Index < Map->Objects.Count; Index++)
 	{
 		const map_object_t *Obj = &Map->Objects.Values[Index];
+
+		rect_t Bounds = GetTileBounds(Map, Obj->OccupiedTile);
+		vec2_t BitmapOffset = ScrToIso(RectCenter(Bounds));
+		vec2_t BitmapSize = V2(2.0f, 4.0f);
+		DrawRect(Out, BitmapOffset - V2(BitmapSize.x * 0.5f, BitmapSize.y), BitmapSize, ColorYellow);
 	}
 }
 

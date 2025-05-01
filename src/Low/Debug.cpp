@@ -96,11 +96,15 @@ static void BeginVisualDebugMode(vec4_t DebugView, transform_t DebugTrasform)
 	Debug.DebugCamera = DebugTrasform;
 	Debug.DebugView = DebugView;
 	Debug.EnableDebugRenderer = true;
+
+	Assert(!Debug.BeginVisDebugMode);
+	Debug.BeginVisDebugMode = true;
 }
 
 static void EndVisualDebugMode(void)
 {
-
+	Assert(Debug.BeginVisDebugMode);
+	Debug.BeginVisDebugMode = false;
 }
 
 static void _DebugRect(vec2_t Offset, vec2_t Size, vec4_t Color)

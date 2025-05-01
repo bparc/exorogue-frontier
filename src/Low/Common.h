@@ -144,19 +144,28 @@ static float_t Dot(vec2_t A, vec2_t B);
 static float_t Length(vec2_t A);
 static vec2_t Normalize(vec2_t A);
 static float_t Distance(vec2_t A, vec2_t B);
+static float_t Ratio(vec2_t A);
 
 static vec2_t Mix(vec2_t X, vec2_t Y, float_t A);
 static vec2_t Clamp(vec2_t Value, vec2_t Min, vec2_t Max);
 static vec2_t Abs(vec2_t A);
 static vec2_t Floor(vec2_t A);
 
-struct 
-vec4_t
+union vec4_t
 {
+	struct
+	{
+		vec2_t xy;
+		vec2_t zw;
+	};
+
+	struct
+	{
 	float_t x;
 	float_t y;
 	float_t z;
 	float_t w;
+	};
 };
 
 static vec4_t V4(float_t x); // x, x, x, x
@@ -211,6 +220,7 @@ union rect_t
 };
 
 static rect_t Rect(vec2_t Offset, vec2_t Size);
+static rect_t Rect(vec4_t V);
 static rect_t Rect(struct bounds_t Bounds);
 static vec2_t RectCenter(rect_t Rect);
 static vec2_t RectExtends(rect_t Rect);
@@ -219,7 +229,7 @@ static vec2_t RectMax(rect_t Rect);
 static rect_t Shrink(rect_t Rect, float_t Amount);
 static rect_t Stretch(rect_t Rect, float_t Amount);
 static vec4_t V4(rect_t Rect);
-static rect_t MaintainAspectRatio(rect_t Rect, float Aspect);
+static rect_t AdjustAspectRatio(rect_t Rect, float Aspect);
 
 static bool Contains(rect_t Rect, vec2_t Point);
 

@@ -350,6 +350,12 @@ static float_t Distance(vec2_t A, vec2_t B)
 	return Result;
 }
 
+static float_t Ratio(vec2_t A)
+{
+	float_t Result = A.x / A.y;
+	return Result;
+}
+
 static vec2_t Clamp(vec2_t Value, vec2_t Min, vec2_t Max)
 {
 	vec2_t Result = {};
@@ -442,6 +448,14 @@ static rect_t Rect(vec2_t Offset, vec2_t Size)
 	return Result;
 }
 
+static rect_t Rect(vec4_t V)
+{
+	rect_t Result = {};
+	Result.Offset = V.xy;
+	Result.Size = V.zw;
+	return Result;
+}
+
 static rect_t Rect(struct bounds_t Bounds)
 {
 	rect_t Result = {};
@@ -499,7 +513,7 @@ static vec4_t V4(rect_t Rect)
 	return Result;
 }
 
-static rect_t MaintainAspectRatio(rect_t Rect, float Aspect)
+static rect_t AdjustAspectRatio(rect_t Rect, float Aspect)
 {
 	rect_t Result = Rect;
 
@@ -515,6 +529,18 @@ static rect_t MaintainAspectRatio(rect_t Rect, float Aspect)
 	}
 
 	return Result;
+}
+
+static rect_t AdjustAspectRatio(vec2_t Size, float Aspect)
+{
+	rect_t Result = AdjustAspectRatio(Rect({}, Size), Aspect);
+	return Result;
+}
+
+static vec4_t MaintainAspectRatio(vec2_t Size, float Aspect)
+{
+	rect_t Result = AdjustAspectRatio(Size, Aspect);
+	return V4(Result);
 }
 
 static bool Contains(rect_t Rect, vec2_t Point)

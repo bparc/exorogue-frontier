@@ -44,7 +44,7 @@ static void Editor(game_state_t *State, editor_t *Editor, const input_t *Input, 
 	{
 		InitializeEditor(Editor);
 
-		Editor->Camera = CreateCamera({800.0f / 2.0f, 600.0f / 2.0f});
+		Editor->Camera = CreateCamera(Input->Viewport / 8.0f);
 		Editor->Inited = true;
 	}
 

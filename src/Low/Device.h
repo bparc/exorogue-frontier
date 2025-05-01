@@ -1,5 +1,7 @@
 // Device.h
 
+//
+
 typedef struct graphics_device_t graphics_device_t;
 
 enum

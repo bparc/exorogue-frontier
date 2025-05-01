@@ -11,8 +11,6 @@ static float_t GetCameraScaleFactor(const camera_t *Camera);
 static transform_t GetCameraTransform(const camera_t *Camera);
 static bounds_t GetCameraBounds(const camera_t *Camera);
 
-static void TrackObject(camera_t *Camera, vec2_t Position, float_t Speed);
-
 //
 
 struct action_t
@@ -37,26 +35,21 @@ struct game_state_t
 	float_t ElapsedTime;
 	memory_t Memory;
 
-	player_t Player;
+	input_t Input;
 	camera_t Camera;
 	map_t Map;
 
 	//
+	object_t Player;
+	
+	// Interface
+	interface_t GUI;
 
-	bool AwaitUserCmds;
-	array_t <action_t, 256>ActionQueue;
-	array_t <active_unit_t, 32>Units;
-	//
-
-	// Rendering.
+	// Rendering
 	game_renderer_t Renderer;
 
 	//command_buffer_t CommandBuffers[1];
 };
-
-static object_t Spawn(game_state_t *State, point_t At, object_type_t Type);
-static active_unit_t *FindActiveUnit(game_state_t *State, object_t Object);
-static void Join(game_state_t *State, object_t Object, bool Bot);
 
 // ...
 
@@ -67,9 +60,3 @@ static void RunFrame(game_state_t *State, const input_t *Input, graphics_device_
 static camera_t GetActiveCamera(game_state_t *State);
 
 //
-
-static void AcceptUserInput(game_state_t *State, user_cmd_t Cmd);
-static void PlayActions(game_state_t *State, float_t DeltaTime);
-
-static void ScheduleAI(game_state_t *State);
-static void QueryAction(game_state_t *State, object_t User, point_t Dest, bool Fence = false);

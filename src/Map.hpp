@@ -23,15 +23,8 @@ struct map_tile_t
 bool IsEmpty(const map_tile_t *Tile);
 bool IsTraversable(const map_tile_t *Tile);
 
-enum bitmap_alignment_t
-{
-	Alignment_Mid = 0,
-	Alignment_Bot,
-};
-
 struct object_behaviour_t
 {
-	bitmap_alignment_t Alignment;
 	bitmap_t Animation[2]; 
 	uint8_t Tag;
 };
@@ -40,12 +33,8 @@ struct map_object_t
 {
 	const object_behaviour_t *Type;
 
-	uint16_t HP;
-
 	object_t Self;
 	point_t OccupiedTile; // NOTE: Has to be set via Translate()!!!
-
-	uint64_t LastFrameFetched;
 
 	// Rendering
 	float_t DamageFlickerTime; // NOTE: Object will flicker if > 0.0.
@@ -57,8 +46,7 @@ struct map_object_t
 	// ...
 };
 
-static void Animate(map_object_t *Object, vec2_t BitmapPosition, float_t Height = 0.0f);
-static vec2_t GetObjectCenter(map_object_t *Object);
+static vec2_t GetObjectCenter(const map_object_t *Obj);
 
 struct map_t
 {
