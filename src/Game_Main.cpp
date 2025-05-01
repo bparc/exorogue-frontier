@@ -23,7 +23,7 @@ static void InitializeGame(game_state_t *State, const content_t *Content)
 	#undef X
 	#undef Y
 
-	LoadAutoMapInput(&State->Map, "Assets/Map_001.tga");
+	//LoadAutoMapInput(&State->Map, "Assets/Map_001.tga");
 
 	//CreateMapObject(&State->Map, {5, 0}, 0);
 

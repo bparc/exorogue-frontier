@@ -22,6 +22,15 @@ static void CreateMap(map_t *Map, int32_t X, int32_t Y, map_tile_t *Tiles, int32
 	Map->Tiles = Tiles;
 	Map->X = X;
 	Map->Y = Y;
+
+	for (int32_t y = 0; y < Map->Y; y++)
+	{
+		for (int32_t x = 0; x < Map->X; x++)
+		{
+			map_tile_t *Tile = GetTile(Map, {x, y});
+			Tile->Attributes = TileAttrib_Traversable;
+		}
+	}
 }
 
 static bool CheckBounds(const map_t *Map, point_t Offset)

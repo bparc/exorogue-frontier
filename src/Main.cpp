@@ -12,8 +12,6 @@
 //#include "Debug.cpp"
 #endif
 
-#include "Automapping.cpp"
-
 #include "Render.hpp"
 #include "Render.cpp"
 
