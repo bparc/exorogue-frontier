@@ -17,9 +17,6 @@
 #include "Render.hpp"
 #include "Render.cpp"
 
-#include "Navigation.hpp"
-#include "Navigation.cpp"
-
 #include "Game.hpp"
 #include "PlayerInterface.hpp"
 #include "PlayerInterface.cpp"
