@@ -27,8 +27,10 @@ static void Camera(camera_t *Camera, vec2_t Target, float_t DeltaTime)
 	Camera->Center = Mix(Camera->Center, ScrToIso(Target), DeltaTime);
 }
 
-static void HostPlayer(game_state_t *State)
+static user_cmd_t HostPlayer(game_state_t *State)
 {
+	user_cmd_t Result = {};
+
 	controller_t *Con = &State->Input.Controllers[0];
 	interface_t *GUI = &State->GUI;
 
@@ -40,9 +42,14 @@ static void HostPlayer(game_state_t *State)
 
 		if (!IsZero(Con->DPad))
 		{
-			Translate(&State->Map, Player, Player->OccupiedTile + Con->DPad);
+			Result = {};
+			Result.User = Player->Self;
+			Result.MoveDir = Con->DPad;
+			Result.Valid = true;
 		}
 	}
 
 	Inventory(State, GUI);
+
+	return Result;
 }

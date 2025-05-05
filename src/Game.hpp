@@ -13,20 +13,11 @@ static bounds_t GetCameraBounds(const camera_t *Camera);
 
 //
 
-struct action_t
+struct user_cmd_t
 {
+	bool Valid;
 	object_t User;
-	point_t Source;
-	point_t Dest;
-	float_t Time;
-
-	bool Fence;
-};
-
-struct active_unit_t
-{
-	object_t Self;
-	bool Bot;
+	point_t MoveDir;
 };
 
 struct game_state_t
@@ -36,19 +27,17 @@ struct game_state_t
 	memory_t Memory;
 
 	input_t Input;
-	camera_t Camera;
-	map_t Map;
 
 	//
 	object_t Player;
+	camera_t Camera;
+	map_t Map;
 	
 	// Interface
 	interface_t GUI;
 
 	// Rendering
 	game_renderer_t Renderer;
-
-	//command_buffer_t CommandBuffers[1];
 };
 
 // ...

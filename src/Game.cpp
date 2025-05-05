@@ -40,4 +40,14 @@ static camera_t GetActiveCamera(game_state_t *State)
 
 // ...
 
+static void CreateMoveQueue(game_state_t *State)
+{
+	
+}
+
+static void EvaluateMoves(game_state_t *State)
+{
+
+}
+
 #include "Game_Main.cpp"

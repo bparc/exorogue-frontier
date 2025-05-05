@@ -39,37 +39,10 @@ static void InitializeGame(game_state_t *State, const content_t *Content)
 	
 	//CreateMapObject(&State->Map, {, 4}, 0);
 
-	map_object_t *Player = CreateMapObject(&State->Map, {16, 16}, 0);
+	map_object_t *Player = CreateMapObject(&State->Map, {6, 6}, 0);
 	State->Player = Player->Self;
-
-#if 0
-	CreateMapObject(&State->Map, {1, 0}, 0);
-	CreateMapObject(&State->Map, {2, 0}, 0);
-	CreateMapObject(&State->Map, {3, 0}, 0);
-
-	CreateMapObject(&State->Map, {0, 1}, 0);
-	CreateMapObject(&State->Map, {1, 1}, 0);
-	CreateMapObject(&State->Map, {2, 1}, 0);
-	CreateMapObject(&State->Map, {3, 1}, 0);
-
-	CreateMapObject(&State->Map, {0, 2}, 0);
-	CreateMapObject(&State->Map, {1, 2}, 0);
-	CreateMapObject(&State->Map, {2, 2}, 0);
-	CreateMapObject(&State->Map, {3, 2}, 0);
-
-	CreateMapObject(&State->Map, {0, 3}, 0);
-	CreateMapObject(&State->Map, {1, 3}, 0);
-	CreateMapObject(&State->Map, {2, 3}, 0);
-	CreateMapObject(&State->Map, {3, 3}, 0);
-
-	CreateMapObject(&State->Map, {8, 4}, 0);
-#endif
 }
 
-static void Game(game_state_t *State)
-{
-	HostPlayer(State);
-}
 
 static void RunFrame(game_state_t *State, const input_t *Input, graphics_device_t *Device, const camera_t *DebugCamera)
 {
@@ -92,20 +65,21 @@ static void RunFrame(game_state_t *State, const input_t *Input, graphics_device_
 	//
 
 	BeginVisualDebugMode(RenData.Viewport, RenData.Transform);
+
 	BeginGUI(&State->GUI, Input, State->Content->Assets);
 
-	// Logic
-
-	Game(State);
-
+	// 
+	HostPlayer(State);
 	//
 
 	EndGUI(&State->GUI);
+
 	EndVisualDebugMode();
 
 	// Render
 
 	RenderScene(&State->Renderer, &RenData, Device);
+
 	RenderGUI(&State->GUI, Device);
 	//
 }
